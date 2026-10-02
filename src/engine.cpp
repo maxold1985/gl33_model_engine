@@ -2652,21 +2652,39 @@ int engine_run(
             dt
         );
 
+        /*
+            Runtime C++ scripts operate directly on the transform used
+            to draw the loaded player/model. This makes ScriptUpdate()
+            immediately visible in the OpenGL scene.
+        */
         ScriptContext script_context{};
         script_context.object_x =
-            &engine.script_object_x;
+            &engine.renderer.collider.body_x;
         script_context.object_y =
-            &engine.script_object_y;
+            &engine.renderer.collider.body_y;
         script_context.object_z =
-            &engine.script_object_z;
+            &engine.renderer.collider.body_z;
         script_context.object_yaw =
-            &engine.script_object_yaw;
+            &engine.renderer.collider.body_yaw;
 
         script_module_update(
             engine.script_module,
             script_context,
             dt
         );
+
+        /*
+            Keep the legacy script transform mirrors synchronized for
+            debugging/UI code that may still inspect Engine directly.
+        */
+        engine.script_object_x =
+            engine.renderer.collider.body_x;
+        engine.script_object_y =
+            engine.renderer.collider.body_y;
+        engine.script_object_z =
+            engine.renderer.collider.body_z;
+        engine.script_object_yaw =
+            engine.renderer.collider.body_yaw;
 
         renderer_physics_step(
             engine.renderer,
