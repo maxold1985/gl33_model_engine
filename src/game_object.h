@@ -10,24 +10,6 @@
 #include <utility>
 #include <vector>
 
-class GameObject;
-
-class Component {
-public:
-    GameObject* game_object = nullptr;
-    bool enabled = true;
-    bool started = false;
-
-    virtual ~Component() {}
-
-    virtual void Start() {}
-    virtual void Update(float dt) { (void)dt; }
-    virtual void OnDestroy() {}
-
-    TransformComponent& transform();
-    const TransformComponent& transform() const;
-};
-
 class GameObject {
 public:
     std::string name = "GameObject";
@@ -41,6 +23,8 @@ public:
     )
         : name(object_name)
     {
+        transform.game_object = this;
+        transform.started = true;
     }
 
     ~GameObject()
@@ -55,6 +39,12 @@ public:
             std::is_base_of<Component, T>::value,
             "T must derive from Component"
         );
+
+        if constexpr (
+            std::is_same<T, TransformComponent>::value
+        ) {
+            return &transform;
+        }
 
         std::unique_ptr<T> component(
             new T(
@@ -81,6 +71,12 @@ public:
             "T must derive from Component"
         );
 
+        if constexpr (
+            std::is_same<T, TransformComponent>::value
+        ) {
+            return &transform;
+        }
+
         for (const auto& component : components_) {
             if (T* result =
                     dynamic_cast<T*>(component.get())) {
@@ -99,6 +95,12 @@ public:
             "T must derive from Component"
         );
 
+        if constexpr (
+            std::is_same<T, TransformComponent>::value
+        ) {
+            return &transform;
+        }
+
         for (const auto& component : components_) {
             if (const T* result =
                     dynamic_cast<const T*>(component.get())) {
@@ -116,6 +118,12 @@ public:
             std::is_base_of<Component, T>::value,
             "T must derive from Component"
         );
+
+        if constexpr (
+            std::is_same<T, TransformComponent>::value
+        ) {
+            return false;
+        }
 
         for (auto it = components_.begin();
              it != components_.end();
@@ -136,7 +144,7 @@ public:
 
     std::size_t component_count() const
     {
-        return components_.size();
+        return components_.size() + 1;
     }
 
 private:
