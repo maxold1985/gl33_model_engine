@@ -68,16 +68,31 @@ PhysicsAabb BoxColliderComponent::aabb() const
 {
     PhysicsAabb result;
 
+    const float sx =
+        transform().scale.x < 0.0f
+            ? -transform().scale.x
+            : transform().scale.x;
+
+    const float sy =
+        transform().scale.y < 0.0f
+            ? -transform().scale.y
+            : transform().scale.y;
+
+    const float sz =
+        transform().scale.z < 0.0f
+            ? -transform().scale.z
+            : transform().scale.z;
+
     result.center = {
-        center.x,
-        center.y,
-        center.z
+        center.x * sx,
+        center.y * sy,
+        center.z * sz
     };
 
     result.half_extents = {
-        size.x * 0.5f,
-        size.y * 0.5f,
-        size.z * 0.5f
+        size.x * sx * 0.5f,
+        size.y * sy * 0.5f,
+        size.z * sz * 0.5f
     };
 
     return result;
