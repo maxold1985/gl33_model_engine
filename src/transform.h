@@ -1,6 +1,7 @@
 #pragma once
 
 #include "math3d.h"
+#include "component.h"
 
 struct TransformVec3 {
     float x = 0.0f;
@@ -12,7 +13,7 @@ struct TransformVec3 {
     Unity-style transform component.
     Rotation is stored as Euler angles in radians.
 */
-struct TransformComponent {
+struct TransformComponent : public Component {
     TransformVec3 position{0.0f, 0.0f, 0.0f};
     TransformVec3 rotation{0.0f, 0.0f, 0.0f};
     TransformVec3 scale{1.0f, 1.0f, 1.0f};
