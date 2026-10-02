@@ -3041,6 +3041,18 @@ void renderer_draw(
                 continue;
             }
 
+            const bool renderer_texture_enabled =
+                renderer.texture_enabled;
+
+            renderer.texture_enabled =
+                renderer.texture_enabled &&
+                mesh_renderer->use_texture;
+
+            const bool component_texture_enabled =
+                renderer.texture_enabled;
+
+            (void)component_texture_enabled;
+
             Mat4 scene_model =
                 transform_matrix(
                     object->transform
@@ -3104,6 +3116,9 @@ void renderer_draw(
                     scene_mvp
                 );
             }
+
+            renderer.texture_enabled =
+                renderer_texture_enabled;
         }
     }
 
