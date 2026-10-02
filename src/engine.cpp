@@ -2,6 +2,7 @@
 #include "gl33.h"
 #include "mesh_renderer_component.h"
 #include "physics_components.h"
+#include "cpp_script_component.h"
 
 #include <GL/gl.h>
 #include <commdlg.h>
@@ -45,6 +46,18 @@ enum : int {
 
     ID_SCRIPT_LOAD = 1401,
     ID_SCRIPT_UNLOAD,
+
+    ID_COMPONENT_ADD_MESH = 1501,
+    ID_COMPONENT_ADD_RIGIDBODY,
+    ID_COMPONENT_ADD_BOXCOLLIDER,
+    ID_COMPONENT_ADD_CPPSCRIPT,
+
+    ID_COMPONENT_REMOVE_MESH = 1511,
+    ID_COMPONENT_REMOVE_RIGIDBODY,
+    ID_COMPONENT_REMOVE_BOXCOLLIDER,
+    ID_COMPONENT_REMOVE_CPPSCRIPT,
+
+    ID_COMPONENT_EDIT = 1521,
 
     ID_EDIT_MODEL_PATH = 2001,
     ID_EDIT_ANIMATION,
@@ -525,6 +538,200 @@ static void open_cpp_script_dialog()
     );
 }
 
+
+static GameObject* get_selected_game_object(
+    Engine& engine
+)
+{
+    if (engine.selected_game_object)
+        return engine.selected_game_object;
+
+    const auto& objects =
+        engine.scene.objects();
+
+    if (objects.empty())
+        return nullptr;
+
+    engine.selected_game_object =
+        objects.front().get();
+
+    return engine.selected_game_object;
+}
+
+static void refresh_component_editor(
+    Engine& engine
+)
+{
+    if (engine.component_editor.window &&
+        IsWindow(
+            engine.component_editor.window
+        )) {
+
+        engine.component_editor.object =
+            get_selected_game_object(
+                engine
+            );
+
+        component_editor_refresh(
+            engine.component_editor
+        );
+    }
+}
+
+static void add_component_to_selected(
+    Engine& engine,
+    int command
+)
+{
+    GameObject* object =
+        get_selected_game_object(
+            engine
+        );
+
+    if (!object) {
+        MessageBoxA(
+            engine.window,
+            "No GameObject is selected.",
+            "Components",
+            MB_OK | MB_ICONINFORMATION
+        );
+        return;
+    }
+
+    bool already_exists =
+        false;
+
+    switch (command) {
+        case ID_COMPONENT_ADD_MESH:
+            already_exists =
+                object->GetComponent<
+                    MeshRendererComponent
+                >() != nullptr;
+
+            if (!already_exists)
+                object->AddComponent<
+                    MeshRendererComponent
+                >();
+            break;
+
+        case ID_COMPONENT_ADD_RIGIDBODY:
+            already_exists =
+                object->GetComponent<
+                    RigidbodyComponent
+                >() != nullptr;
+
+            if (!already_exists)
+                object->AddComponent<
+                    RigidbodyComponent
+                >();
+            break;
+
+        case ID_COMPONENT_ADD_BOXCOLLIDER:
+            already_exists =
+                object->GetComponent<
+                    BoxColliderComponent
+                >() != nullptr;
+
+            if (!already_exists)
+                object->AddComponent<
+                    BoxColliderComponent
+                >();
+            break;
+
+        case ID_COMPONENT_ADD_CPPSCRIPT:
+            already_exists =
+                object->GetComponent<
+                    CppScriptComponent
+                >() != nullptr;
+
+            if (!already_exists)
+                object->AddComponent<
+                    CppScriptComponent
+                >();
+            break;
+    }
+
+    if (already_exists) {
+        MessageBoxA(
+            engine.window,
+            "The selected GameObject already has this component.",
+            "Add Component",
+            MB_OK | MB_ICONINFORMATION
+        );
+    }
+
+    refresh_component_editor(
+        engine
+    );
+}
+
+static void remove_component_from_selected(
+    Engine& engine,
+    int command
+)
+{
+    GameObject* object =
+        get_selected_game_object(
+            engine
+        );
+
+    if (!object) {
+        MessageBoxA(
+            engine.window,
+            "No GameObject is selected.",
+            "Components",
+            MB_OK | MB_ICONINFORMATION
+        );
+        return;
+    }
+
+    bool removed =
+        false;
+
+    switch (command) {
+        case ID_COMPONENT_REMOVE_MESH:
+            removed =
+                object->RemoveComponent<
+                    MeshRendererComponent
+                >();
+            break;
+
+        case ID_COMPONENT_REMOVE_RIGIDBODY:
+            removed =
+                object->RemoveComponent<
+                    RigidbodyComponent
+                >();
+            break;
+
+        case ID_COMPONENT_REMOVE_BOXCOLLIDER:
+            removed =
+                object->RemoveComponent<
+                    BoxColliderComponent
+                >();
+            break;
+
+        case ID_COMPONENT_REMOVE_CPPSCRIPT:
+            removed =
+                object->RemoveComponent<
+                    CppScriptComponent
+                >();
+            break;
+    }
+
+    if (!removed) {
+        MessageBoxA(
+            engine.window,
+            "The selected GameObject does not have this component.",
+            "Remove Component",
+            MB_OK | MB_ICONINFORMATION
+        );
+    }
+
+    refresh_component_editor(
+        engine
+    );
+}
+
 static HMENU create_main_menu()
 {
     HMENU menu_bar =
@@ -543,6 +750,15 @@ static HMENU create_main_menu()
         CreatePopupMenu();
 
     HMENU script_menu =
+        CreatePopupMenu();
+
+    HMENU components_menu =
+        CreatePopupMenu();
+
+    HMENU add_component_menu =
+        CreatePopupMenu();
+
+    HMENU remove_component_menu =
         CreatePopupMenu();
 
     AppendMenuA(
@@ -630,6 +846,104 @@ static HMENU create_main_menu()
     );
 
     AppendMenuA(
+        add_component_menu,
+        MF_STRING,
+        ID_COMPONENT_ADD_MESH,
+        "MeshRenderer"
+    );
+
+    AppendMenuA(
+        add_component_menu,
+        MF_STRING,
+        ID_COMPONENT_ADD_RIGIDBODY,
+        "Rigidbody"
+    );
+
+    AppendMenuA(
+        add_component_menu,
+        MF_STRING,
+        ID_COMPONENT_ADD_BOXCOLLIDER,
+        "BoxCollider"
+    );
+
+    AppendMenuA(
+        add_component_menu,
+        MF_STRING,
+        ID_COMPONENT_ADD_CPPSCRIPT,
+        "C++ Script"
+    );
+
+    AppendMenuA(
+        remove_component_menu,
+        MF_STRING | MF_GRAYED,
+        0,
+        "Transform (required)"
+    );
+
+    AppendMenuA(
+        remove_component_menu,
+        MF_SEPARATOR,
+        0,
+        nullptr
+    );
+
+    AppendMenuA(
+        remove_component_menu,
+        MF_STRING,
+        ID_COMPONENT_REMOVE_MESH,
+        "MeshRenderer"
+    );
+
+    AppendMenuA(
+        remove_component_menu,
+        MF_STRING,
+        ID_COMPONENT_REMOVE_RIGIDBODY,
+        "Rigidbody"
+    );
+
+    AppendMenuA(
+        remove_component_menu,
+        MF_STRING,
+        ID_COMPONENT_REMOVE_BOXCOLLIDER,
+        "BoxCollider"
+    );
+
+    AppendMenuA(
+        remove_component_menu,
+        MF_STRING,
+        ID_COMPONENT_REMOVE_CPPSCRIPT,
+        "C++ Script"
+    );
+
+    AppendMenuA(
+        components_menu,
+        MF_POPUP,
+        (UINT_PTR)add_component_menu,
+        "&Add Component"
+    );
+
+    AppendMenuA(
+        components_menu,
+        MF_POPUP,
+        (UINT_PTR)remove_component_menu,
+        "&Remove Component"
+    );
+
+    AppendMenuA(
+        components_menu,
+        MF_SEPARATOR,
+        0,
+        nullptr
+    );
+
+    AppendMenuA(
+        components_menu,
+        MF_STRING,
+        ID_COMPONENT_EDIT,
+        "&Edit Components..."
+    );
+
+    AppendMenuA(
         help_menu,
         MF_STRING,
         ID_HELP_ABOUT,
@@ -655,6 +969,13 @@ static HMENU create_main_menu()
         MF_POPUP,
         (UINT_PTR)animation_menu,
         "&Animation"
+    );
+
+    AppendMenuA(
+        menu_bar,
+        MF_POPUP,
+        (UINT_PTR)components_menu,
+        "&Components"
     );
 
     AppendMenuA(
@@ -2379,6 +2700,11 @@ bool engine_init(
         }
     }
 
+    if (!component_editor_register_class(
+            instance)) {
+        return false;
+    }
+
     RECT rect{
         0,
         0,
@@ -2791,6 +3117,13 @@ void engine_shutdown(
         engine.script_module
     );
 
+    component_editor_close(
+        engine.component_editor
+    );
+
+    engine.selected_game_object =
+        nullptr;
+
     engine.scene.Clear();
     engine.renderer.scene =
         nullptr;
@@ -2856,6 +3189,10 @@ void engine_shutdown(
 
         UnregisterClassA(
             "GL33ModelEngineWindow",
+            engine.instance
+        );
+
+        component_editor_unregister_class(
             engine.instance
         );
     }
