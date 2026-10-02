@@ -6,6 +6,7 @@
 #include "renderer.h"
 #include "script_module.h"
 #include "scene.h"
+#include "component_editor.h"
 
 struct Engine {
     HINSTANCE instance = nullptr;
@@ -109,6 +110,10 @@ struct Engine {
 
     Renderer renderer;
     Scene scene;
+
+    /* Unity-style selected object + component Inspector. */
+    GameObject* selected_game_object = nullptr;
+    ComponentEditorWindow component_editor;
 
     /* Runtime C++ component script. */
     ScriptModule script_module;
