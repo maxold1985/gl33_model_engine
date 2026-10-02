@@ -594,13 +594,15 @@ static void apply_editor(
         rb->is_kinematic =
             checked(editor.rb_kinematic);
 
-        if (rb->is_kinematic) {
-            rb->body.position = {
-                object->transform.position.x,
-                object->transform.position.y,
-                object->transform.position.z
-            };
-        }
+        /*
+            Editing Transform position in the Inspector teleports the
+            Rigidbody too, matching the expected editor behavior.
+        */
+        rb->body.position = {
+            object->transform.position.x,
+            object->transform.position.y,
+            object->transform.position.z
+        };
     }
 
     BoxColliderComponent* box =
@@ -756,6 +758,21 @@ static void load_component_script(
     component_editor_refresh(
         editor
     );
+}
+
+static BOOL CALLBACK set_child_font_proc(
+    HWND child,
+    LPARAM param
+)
+{
+    SendMessageA(
+        child,
+        WM_SETFONT,
+        (WPARAM)param,
+        TRUE
+    );
+
+    return TRUE;
 }
 
 static void create_editor_controls(
@@ -946,18 +963,7 @@ static void create_editor_controls(
 
     EnumChildWindows(
         w,
-        [](
-            HWND child,
-            LPARAM param
-        ) -> BOOL {
-            SendMessageA(
-                child,
-                WM_SETFONT,
-                (WPARAM)param,
-                TRUE
-            );
-            return TRUE;
-        },
+        set_child_font_proc,
         (LPARAM)font
     );
 }
