@@ -11,6 +11,13 @@ struct ComponentEditorWindow {
 
     HWND label_object = nullptr;
 
+    /* Visual component frames (Unity-style inspector sections). */
+    HWND frame_transform = nullptr;
+    HWND frame_rigidbody = nullptr;
+    HWND frame_box_collider = nullptr;
+    HWND frame_mesh_renderer = nullptr;
+    HWND frame_cpp_script = nullptr;
+
     HWND pos_x = nullptr;
     HWND pos_y = nullptr;
     HWND pos_z = nullptr;
