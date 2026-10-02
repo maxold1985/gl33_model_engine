@@ -96,6 +96,7 @@ g++ ^
   src\model_loader.cpp ^
   src\ui.cpp ^
   src\renderer.cpp ^
+  src\transform.cpp ^
   src\physics.cpp ^
   src\raycast_vehicle.cpp ^
   src\flying_ship.cpp ^
