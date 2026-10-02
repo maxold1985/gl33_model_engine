@@ -66,6 +66,20 @@ Mat4 mat4_rotation_y(float a)
     return r;
 }
 
+
+Mat4 mat4_rotation_z(float radians)
+{
+    Mat4 r = mat4_identity();
+    const float c = std::cos(radians);
+    const float s = std::sin(radians);
+
+    r.m[0] = c;
+    r.m[1] = s;
+    r.m[4] = -s;
+    r.m[5] = c;
+    return r;
+}
+
 Mat4 mat4_scale(float x, float y, float z)
 {
     Mat4 r = mat4_identity();
