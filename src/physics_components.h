@@ -8,6 +8,10 @@ public:
     PhysicsBody body;
 
     float mass = 1.0f;
+    float restitution = 0.15f;
+    float friction = 0.60f;
+    float linear_damping = 0.15f;
+
     bool use_gravity = true;
     bool is_kinematic = false;
 
