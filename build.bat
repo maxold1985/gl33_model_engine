@@ -99,6 +99,8 @@ g++ ^
   src\transform.cpp ^
   src\physics_components.cpp ^
   src\game_object.cpp ^
+  src\cpp_script_component.cpp ^
+  src\scene.cpp ^
   src\physics.cpp ^
   src\raycast_vehicle.cpp ^
   src\flying_ship.cpp ^
