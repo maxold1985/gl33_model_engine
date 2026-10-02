@@ -2526,10 +2526,14 @@ bool engine_init(
             BoxColliderComponent
         >();
 
+    /*
+        renderer.cube spans -1..+1, so its local collider is 2x2x2.
+        Transform scale then produces the same world dimensions.
+    */
     cube_collider->size = {
-        1.20f,
-        1.20f,
-        1.20f
+        2.0f,
+        2.0f,
+        2.0f
     };
 
     g_engine = &engine;
