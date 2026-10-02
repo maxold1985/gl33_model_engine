@@ -98,6 +98,7 @@ g++ ^
   src\renderer.cpp ^
   src\raycast_vehicle.cpp ^
   src\flying_ship.cpp ^
+  src\script_module.cpp ^
   -std=c++17 ^
   -O2 ^
   -Wall ^
