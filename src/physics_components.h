@@ -29,6 +29,12 @@ public:
 
 class BoxColliderComponent : public Component {
 public:
+    /*
+        Used when this GameObject has a BoxCollider but no Rigidbody:
+        Unity-style static collider body owned by the collider itself.
+    */
+    PhysicsBody static_body;
+
     TransformVec3 center{0.0f,0.0f,0.0f};
     TransformVec3 size{1.0f,1.0f,1.0f};
 
