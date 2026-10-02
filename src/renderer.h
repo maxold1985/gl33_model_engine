@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+class Scene;
+
 struct GpuMesh {
     unsigned int vao = 0;
     unsigned int vbo = 0;
@@ -156,6 +158,8 @@ struct AmmoPickupState {
 };
 
 struct Renderer {
+    Scene* scene = nullptr;
+
     unsigned int program = 0;
 
     int u_mvp = -1;
