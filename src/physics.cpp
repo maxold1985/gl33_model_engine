@@ -4,7 +4,9 @@
 #include <cmath>
 
 static PhysicsVec3 add(const PhysicsVec3& a,const PhysicsVec3& b){return {a.x+b.x,a.y+b.y,a.z+b.z};}
+static PhysicsVec3 sub(const PhysicsVec3& a,const PhysicsVec3& b){return {a.x-b.x,a.y-b.y,a.z-b.z};}
 static PhysicsVec3 mul(const PhysicsVec3& a,float s){return {a.x*s,a.y*s,a.z*s};}
+static float dot(const PhysicsVec3& a,const PhysicsVec3& b){return a.x*b.x+a.y*b.y+a.z*b.z;}
 
 void physics_body_set_mass(PhysicsBody& body,float mass)
 {
@@ -112,6 +114,127 @@ void physics_world_step(PhysicsWorld& world,float dt)
             else {
                 a->position=add(a->position,mul(n,p*0.5f));
                 b->position=add(b->position,mul(n,-p*0.5f));
+            }
+
+            /*
+                Sequential impulse contact response.
+                n points from body B toward body A.
+            */
+            const float inv_a =
+                a->is_static ? 0.0f : a->inverse_mass;
+
+            const float inv_b =
+                b->is_static ? 0.0f : b->inverse_mass;
+
+            const float inv_sum =
+                inv_a + inv_b;
+
+            if(inv_sum<=0.0f)
+                continue;
+
+            PhysicsVec3 relative_velocity =
+                sub(a->velocity,b->velocity);
+
+            const float velocity_along_normal =
+                dot(relative_velocity,n);
+
+            if(velocity_along_normal<0.0f){
+                const float restitution =
+                    std::min(
+                        a->restitution,
+                        b->restitution
+                    );
+
+                const float impulse_scalar =
+                    -(1.0f+restitution) *
+                    velocity_along_normal /
+                    inv_sum;
+
+                const PhysicsVec3 impulse =
+                    mul(n,impulse_scalar);
+
+                if(!a->is_static)
+                    a->velocity=add(
+                        a->velocity,
+                        mul(impulse,inv_a)
+                    );
+
+                if(!b->is_static)
+                    b->velocity=add(
+                        b->velocity,
+                        mul(impulse,-inv_b)
+                    );
+
+                /*
+                    Coulomb friction impulse along the contact tangent.
+                */
+                relative_velocity =
+                    sub(a->velocity,b->velocity);
+
+                PhysicsVec3 tangent =
+                    sub(
+                        relative_velocity,
+                        mul(
+                            n,
+                            dot(relative_velocity,n)
+                        )
+                    );
+
+                const float tangent_length =
+                    std::sqrt(
+                        dot(tangent,tangent)
+                    );
+
+                if(tangent_length>0.000001f){
+                    tangent =
+                        mul(
+                            tangent,
+                            1.0f/tangent_length
+                        );
+
+                    float friction_scalar =
+                        -dot(
+                            relative_velocity,
+                            tangent
+                        ) /
+                        inv_sum;
+
+                    const float mu =
+                        std::sqrt(
+                            std::max(0.0f,a->friction) *
+                            std::max(0.0f,b->friction)
+                        );
+
+                    const float friction_limit =
+                        impulse_scalar * mu;
+
+                    friction_scalar =
+                        std::max(
+                            -friction_limit,
+                            std::min(
+                                friction_limit,
+                                friction_scalar
+                            )
+                        );
+
+                    const PhysicsVec3 friction_impulse =
+                        mul(
+                            tangent,
+                            friction_scalar
+                        );
+
+                    if(!a->is_static)
+                        a->velocity=add(
+                            a->velocity,
+                            mul(friction_impulse,inv_a)
+                        );
+
+                    if(!b->is_static)
+                        b->velocity=add(
+                            b->velocity,
+                            mul(friction_impulse,-inv_b)
+                        );
+                }
             }
         }
     }
