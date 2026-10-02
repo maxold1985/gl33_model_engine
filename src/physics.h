@@ -32,6 +32,7 @@ struct PhysicsBody {
     float mass = 1.0f;
     float inverse_mass = 1.0f;
     float restitution = 0.15f;
+    float friction = 0.60f;
     float linear_damping = 0.15f;
 
     PhysicsAabb collider;
