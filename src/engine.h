@@ -4,6 +4,7 @@
 #include <windows.h>
 
 #include "renderer.h"
+#include "script_module.h"
 
 struct Engine {
     HINSTANCE instance = nullptr;
@@ -106,6 +107,13 @@ struct Engine {
     HMENU menu_bar = nullptr;
 
     Renderer renderer;
+
+    /* Runtime C++ component script. */
+    ScriptModule script_module;
+    float script_object_x = 0.0f;
+    float script_object_y = 0.0f;
+    float script_object_z = 0.0f;
+    float script_object_yaw = 0.0f;
 };
 
 bool engine_init(
