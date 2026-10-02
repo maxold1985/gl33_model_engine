@@ -5,6 +5,7 @@
 
 #include "renderer.h"
 #include "script_module.h"
+#include "scene.h"
 
 struct Engine {
     HINSTANCE instance = nullptr;
@@ -107,6 +108,7 @@ struct Engine {
     HMENU menu_bar = nullptr;
 
     Renderer renderer;
+    Scene scene;
 
     /* Runtime C++ component script. */
     ScriptModule script_module;
