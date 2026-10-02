@@ -4,7 +4,16 @@ void transform_reset(
     TransformComponent& transform
 )
 {
+    GameObject* owner =
+        transform.game_object;
+
     transform = TransformComponent{};
+
+    transform.game_object =
+        owner;
+
+    transform.started =
+        true;
 }
 
 Mat4 transform_matrix(
