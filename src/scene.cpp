@@ -102,19 +102,55 @@ void Scene::Update(
         RigidbodyComponent* rigidbody =
             object->GetComponent<RigidbodyComponent>();
 
+        BoxColliderComponent* collider =
+            object->GetComponent<BoxColliderComponent>();
+
+        /*
+            Collider without Rigidbody behaves as a static collider.
+            Trigger colliders are not inserted into the response solver.
+        */
+        if ((!rigidbody ||
+             !rigidbody->enabled) &&
+            collider &&
+            collider->enabled &&
+            !collider->is_trigger) {
+
+            collider->static_body.position = {
+                object->transform.position.x,
+                object->transform.position.y,
+                object->transform.position.z
+            };
+
+            collider->static_body.collider =
+                collider->aabb();
+
+            collider->static_body.use_gravity =
+                false;
+
+            physics_body_set_mass(
+                collider->static_body,
+                0.0f
+            );
+
+            physics_world_add_body(
+                physics,
+                collider->static_body
+            );
+
+            continue;
+        }
+
         if (!rigidbody ||
             !rigidbody->enabled) {
             continue;
         }
 
-        BoxColliderComponent* collider =
-            object->GetComponent<BoxColliderComponent>();
-
         rigidbody->body.use_gravity =
             rigidbody->use_gravity;
 
         if (collider &&
-            collider->enabled) {
+            collider->enabled &&
+            !collider->is_trigger) {
             rigidbody->body.collider =
                 collider->aabb();
         }
