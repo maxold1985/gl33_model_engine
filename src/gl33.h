@@ -1,0 +1,122 @@
+#pragma once
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <GL/gl.h>
+#include <cstddef>
+
+#ifndef GL_ARRAY_BUFFER
+#define GL_ARRAY_BUFFER 0x8892
+#endif
+#ifndef GL_ELEMENT_ARRAY_BUFFER
+#define GL_ELEMENT_ARRAY_BUFFER 0x8893
+#endif
+#ifndef GL_STATIC_DRAW
+#define GL_STATIC_DRAW 0x88E4
+#endif
+#ifndef GL_DYNAMIC_DRAW
+#define GL_DYNAMIC_DRAW 0x88E8
+#endif
+#ifndef GL_VERTEX_SHADER
+#define GL_VERTEX_SHADER 0x8B31
+#endif
+#ifndef GL_FRAGMENT_SHADER
+#define GL_FRAGMENT_SHADER 0x8B30
+#endif
+#ifndef GL_COMPILE_STATUS
+#define GL_COMPILE_STATUS 0x8B81
+#endif
+#ifndef GL_LINK_STATUS
+#define GL_LINK_STATUS 0x8B82
+#endif
+#ifndef GL_INFO_LOG_LENGTH
+#define GL_INFO_LOG_LENGTH 0x8B84
+#endif
+#ifndef GL_TEXTURE0
+#define GL_TEXTURE0 0x84C0
+#endif
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
+#ifndef GL_RGBA8
+#define GL_RGBA8 0x8058
+#endif
+#ifndef GL_SHADING_LANGUAGE_VERSION
+#define GL_SHADING_LANGUAGE_VERSION 0x8B8C
+#endif
+
+using GLsizeiptr33 = std::ptrdiff_t;
+
+using PFNGLGENVERTEXARRAYSPROC33 = void (APIENTRY *)(GLsizei, GLuint*);
+using PFNGLBINDVERTEXARRAYPROC33 = void (APIENTRY *)(GLuint);
+using PFNGLDELETEVERTEXARRAYSPROC33 = void (APIENTRY *)(GLsizei, const GLuint*);
+
+using PFNGLGENBUFFERSPROC33 = void (APIENTRY *)(GLsizei, GLuint*);
+using PFNGLBINDBUFFERPROC33 = void (APIENTRY *)(GLenum, GLuint);
+using PFNGLBUFFERDATAPROC33 = void (APIENTRY *)(GLenum, GLsizeiptr33, const void*, GLenum);
+using PFNGLDELETEBUFFERSPROC33 = void (APIENTRY *)(GLsizei, const GLuint*);
+
+using PFNGLCREATESHADERPROC33 = GLuint (APIENTRY *)(GLenum);
+using PFNGLSHADERSOURCEPROC33 = void (APIENTRY *)(GLuint, GLsizei, const char* const*, const GLint*);
+using PFNGLCOMPILESHADERPROC33 = void (APIENTRY *)(GLuint);
+using PFNGLGETSHADERIVPROC33 = void (APIENTRY *)(GLuint, GLenum, GLint*);
+using PFNGLGETSHADERINFOLOGPROC33 = void (APIENTRY *)(GLuint, GLsizei, GLsizei*, char*);
+using PFNGLDELETESHADERPROC33 = void (APIENTRY *)(GLuint);
+
+using PFNGLCREATEPROGRAMPROC33 = GLuint (APIENTRY *)(void);
+using PFNGLATTACHSHADERPROC33 = void (APIENTRY *)(GLuint, GLuint);
+using PFNGLLINKPROGRAMPROC33 = void (APIENTRY *)(GLuint);
+using PFNGLGETPROGRAMIVPROC33 = void (APIENTRY *)(GLuint, GLenum, GLint*);
+using PFNGLGETPROGRAMINFOLOGPROC33 = void (APIENTRY *)(GLuint, GLsizei, GLsizei*, char*);
+using PFNGLUSEPROGRAMPROC33 = void (APIENTRY *)(GLuint);
+using PFNGLDELETEPROGRAMPROC33 = void (APIENTRY *)(GLuint);
+
+using PFNGLVERTEXATTRIBPOINTERPROC33 = void (APIENTRY *)(GLuint, GLint, GLenum, GLboolean, GLsizei, const void*);
+using PFNGLENABLEVERTEXATTRIBARRAYPROC33 = void (APIENTRY *)(GLuint);
+
+using PFNGLGETUNIFORMLOCATIONPROC33 = GLint (APIENTRY *)(GLuint, const char*);
+using PFNGLUNIFORMMATRIX4FVPROC33 = void (APIENTRY *)(GLint, GLsizei, GLboolean, const GLfloat*);
+using PFNGLUNIFORM1IPROC33 = void (APIENTRY *)(GLint, GLint);
+using PFNGLUNIFORM1FPROC33 = void (APIENTRY *)(GLint, GLfloat);
+using PFNGLUNIFORM4FPROC33 = void (APIENTRY *)(GLint, GLfloat, GLfloat, GLfloat, GLfloat);
+
+using PFNGLACTIVETEXTUREPROC33 = void (APIENTRY *)(GLenum);
+using PFNGLGENERATEMIPMAPPROC33 = void (APIENTRY *)(GLenum);
+
+extern PFNGLGENVERTEXARRAYSPROC33 gl33GenVertexArrays;
+extern PFNGLBINDVERTEXARRAYPROC33 gl33BindVertexArray;
+extern PFNGLDELETEVERTEXARRAYSPROC33 gl33DeleteVertexArrays;
+
+extern PFNGLGENBUFFERSPROC33 gl33GenBuffers;
+extern PFNGLBINDBUFFERPROC33 gl33BindBuffer;
+extern PFNGLBUFFERDATAPROC33 gl33BufferData;
+extern PFNGLDELETEBUFFERSPROC33 gl33DeleteBuffers;
+
+extern PFNGLCREATESHADERPROC33 gl33CreateShader;
+extern PFNGLSHADERSOURCEPROC33 gl33ShaderSource;
+extern PFNGLCOMPILESHADERPROC33 gl33CompileShader;
+extern PFNGLGETSHADERIVPROC33 gl33GetShaderiv;
+extern PFNGLGETSHADERINFOLOGPROC33 gl33GetShaderInfoLog;
+extern PFNGLDELETESHADERPROC33 gl33DeleteShader;
+
+extern PFNGLCREATEPROGRAMPROC33 gl33CreateProgram;
+extern PFNGLATTACHSHADERPROC33 gl33AttachShader;
+extern PFNGLLINKPROGRAMPROC33 gl33LinkProgram;
+extern PFNGLGETPROGRAMIVPROC33 gl33GetProgramiv;
+extern PFNGLGETPROGRAMINFOLOGPROC33 gl33GetProgramInfoLog;
+extern PFNGLUSEPROGRAMPROC33 gl33UseProgram;
+extern PFNGLDELETEPROGRAMPROC33 gl33DeleteProgram;
+
+extern PFNGLVERTEXATTRIBPOINTERPROC33 gl33VertexAttribPointer;
+extern PFNGLENABLEVERTEXATTRIBARRAYPROC33 gl33EnableVertexAttribArray;
+
+extern PFNGLGETUNIFORMLOCATIONPROC33 gl33GetUniformLocation;
+extern PFNGLUNIFORMMATRIX4FVPROC33 gl33UniformMatrix4fv;
+extern PFNGLUNIFORM1IPROC33 gl33Uniform1i;
+extern PFNGLUNIFORM1FPROC33 gl33Uniform1f;
+extern PFNGLUNIFORM4FPROC33 gl33Uniform4f;
+
+extern PFNGLACTIVETEXTUREPROC33 gl33ActiveTexture;
+extern PFNGLGENERATEMIPMAPPROC33 gl33GenerateMipmap;
+
+bool gl33_load();

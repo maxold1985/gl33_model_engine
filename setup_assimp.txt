@@ -1,0 +1,42 @@
+ASSIMP PARA FBX
+===============
+
+A engine agora usa Assimp SOMENTE para FBX.
+O loader GLB continua proprio.
+
+Estrutura esperada:
+
+F:\assimp\
+    include\
+        assimp\
+            Importer.hpp
+            scene.h
+            postprocess.h
+            ...
+    lib\
+        libassimp.dll.a
+    bin\
+        assimp*.dll
+
+Antes de build.bat, voce pode usar:
+
+    set ASSIMP_ROOT=F:\assimp
+
+IMPORTANTE
+==========
+Seu GCC mostrado anteriormente e i686 (32-bit):
+
+    g++ (MinGW-W64 i686-msvcrt-posix-dwarf)
+
+Portanto o Assimp tambem precisa ser compilado para i686/32-bit.
+Nao misture biblioteca x86_64 com compilador i686.
+
+Se trocar para WinLibs x86_64, use Assimp x86_64 correspondente.
+
+A DLL do Assimp precisa ficar ao lado de:
+    build\model_engine.exe
+
+O build.bat tenta copia-la automaticamente de:
+    %ASSIMP_ROOT%\bin
+ou:
+    %ASSIMP_ROOT%\lib
