@@ -89,6 +89,30 @@ static HWND make_check(
     );
 }
 
+static HWND make_groupbox(
+    HWND parent,
+    const char* text,
+    int x,
+    int y,
+    int w,
+    int h
+)
+{
+    return CreateWindowExA(
+        0,
+        "BUTTON",
+        text,
+        WS_CHILD |
+        WS_VISIBLE |
+        BS_GROUPBOX,
+        x, y, w, h,
+        parent,
+        nullptr,
+        GetModuleHandleA(nullptr),
+        nullptr
+    );
+}
+
 static std::string edit_text(
     HWND control
 )
@@ -210,6 +234,7 @@ static void enable_rigidbody(
     bool enabled
 )
 {
+    enable_control(editor.frame_rigidbody, enabled);
     enable_control(editor.rb_enabled, enabled);
     enable_control(editor.rb_mass, enabled);
     enable_control(editor.rb_restitution, enabled);
@@ -224,6 +249,7 @@ static void enable_box(
     bool enabled
 )
 {
+    enable_control(editor.frame_box_collider, enabled);
     enable_control(editor.box_enabled, enabled);
     enable_control(editor.box_center_x, enabled);
     enable_control(editor.box_center_y, enabled);
@@ -239,6 +265,7 @@ static void enable_mesh(
     bool enabled
 )
 {
+    enable_control(editor.frame_mesh_renderer, enabled);
     enable_control(editor.mesh_enabled, enabled);
     enable_control(editor.mesh_source, enabled);
     enable_control(editor.mesh_visible, enabled);
@@ -251,6 +278,7 @@ static void enable_script(
     bool enabled
 )
 {
+    enable_control(editor.frame_cpp_script, enabled);
     enable_control(editor.script_enabled, enabled);
     enable_control(editor.script_path, enabled);
     enable_control(editor.script_load, enabled);
@@ -793,7 +821,51 @@ static void create_editor_controls(
             12, 10, 450, 22
         );
 
-    make_label(w, "Transform", 12, 40, 100, 20);
+    /*
+        Unity-style visual component frames.
+        Frames are created first so all edit/check controls are placed
+        above them in the Win32 sibling Z-order.
+    */
+    e.frame_transform =
+        make_groupbox(
+            w,
+            "Transform",
+            8, 34,
+            470, 120
+        );
+
+    e.frame_rigidbody =
+        make_groupbox(
+            w,
+            "Rigidbody",
+            8, 158,
+            470, 118
+        );
+
+    e.frame_box_collider =
+        make_groupbox(
+            w,
+            "Box Collider",
+            8, 280,
+            470, 112
+        );
+
+    e.frame_mesh_renderer =
+        make_groupbox(
+            w,
+            "Mesh Renderer",
+            8, 396,
+            470, 88
+        );
+
+    e.frame_cpp_script =
+        make_groupbox(
+            w,
+            "C++ Script",
+            8, 488,
+            470, 68
+        );
+
     make_label(w, "Position", 20, 66, 70, 20);
     make_label(w, "X", 96, 66, 14, 20);
     e.pos_x = make_edit(w, 112, 63);
@@ -812,8 +884,7 @@ static void create_editor_controls(
     e.scale_y = make_edit(w, 208, 123);
     e.scale_z = make_edit(w, 304, 123);
 
-    make_label(w, "Rigidbody", 12, 160, 100, 20);
-    e.rb_enabled = make_check(w, "Enabled", 110, 157, 80);
+    e.rb_enabled = make_check(w, "Enabled", 110, 162, 80);
     make_label(w, "Mass", 20, 188, 70, 20);
     e.rb_mass = make_edit(w, 112, 185);
     make_label(w, "Bounce", 200, 188, 58, 20);
@@ -825,8 +896,7 @@ static void create_editor_controls(
     e.rb_gravity = make_check(w, "Use Gravity", 20, 246, 105);
     e.rb_kinematic = make_check(w, "Kinematic", 140, 246, 95);
 
-    make_label(w, "BoxCollider", 12, 282, 100, 20);
-    e.box_enabled = make_check(w, "Enabled", 110, 279, 80);
+    e.box_enabled = make_check(w, "Enabled", 110, 284, 80);
     make_label(w, "Center", 20, 310, 70, 20);
     e.box_center_x = make_edit(w, 112, 307);
     e.box_center_y = make_edit(w, 208, 307);
@@ -837,8 +907,7 @@ static void create_editor_controls(
     e.box_size_z = make_edit(w, 304, 337);
     e.box_trigger = make_check(w, "Is Trigger", 20, 367, 95);
 
-    make_label(w, "MeshRenderer", 12, 402, 100, 20);
-    e.mesh_enabled = make_check(w, "Enabled", 110, 399, 80);
+    e.mesh_enabled = make_check(w, "Enabled", 110, 400, 80);
 
     make_label(w, "Source", 20, 430, 60, 20);
     e.mesh_source =
@@ -892,8 +961,7 @@ static void create_editor_controls(
             200, 458, 80
         );
 
-    make_label(w, "C++ Script", 12, 494, 100, 20);
-    e.script_enabled = make_check(w, "Enabled", 110, 491, 80);
+    e.script_enabled = make_check(w, "Enabled", 110, 492, 80);
     make_label(w, "Path", 20, 522, 50, 20);
 
     e.script_path =
