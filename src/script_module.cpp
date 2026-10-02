@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <cstdlib>
 
+static unsigned long g_script_instance_id = 0;
+
 static std::string quote(
     const std::string& value
 )
@@ -14,10 +16,18 @@ void script_module_unload(
     ScriptModule& module
 )
 {
+    const std::string old_dll_path =
+        module.dll_path;
+
     if (module.library)
         FreeLibrary(module.library);
 
     module = ScriptModule{};
+
+    if (!old_dll_path.empty())
+        DeleteFileA(
+            old_dll_path.c_str()
+        );
 }
 
 bool script_module_compile_and_load(
@@ -33,9 +43,14 @@ bool script_module_compile_and_load(
         temp_path
     );
 
+    const unsigned long instance_id =
+        ++g_script_instance_id;
+
     const std::string dll_path =
         std::string(temp_path) +
-        "gl33_runtime_script.dll";
+        "gl33_runtime_script_" +
+        std::to_string(instance_id) +
+        ".dll";
 
     char exe_path[MAX_PATH] = {};
     GetModuleFileNameA(
