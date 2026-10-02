@@ -96,6 +96,7 @@ g++ ^
   src\model_loader.cpp ^
   src\ui.cpp ^
   src\renderer.cpp ^
+  src\raycast_vehicle.cpp ^
   -std=c++17 ^
   -O2 ^
   -Wall ^
