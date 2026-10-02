@@ -2,7 +2,6 @@
 
 #include "glb_loader.h"
 #include "ui.h"
-#include "transform.h"
 
 #include <string>
 #include <vector>
@@ -89,8 +88,6 @@ struct BoxColliderState {
 
 
 struct ProjectileState {
-    TransformComponent transform;
-
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
@@ -119,8 +116,6 @@ struct AiWaypoint {
 };
 
 struct AiAgentState {
-    TransformComponent transform;
-
     bool enabled = true;
     bool show_waypoints = true;
 
@@ -147,8 +142,6 @@ struct AiAgentState {
 };
 
 struct AmmoPickupState {
-    TransformComponent transform;
-
     float x = 0.0f;
     float z = 0.0f;
 
@@ -204,9 +197,6 @@ struct Renderer {
         Box collider + simple gravity body.
     */
     BoxColliderState collider;
-
-    /* Unity-style transform for the primary loaded object. */
-    TransformComponent transform;
 
     /*
         Projectile system.
