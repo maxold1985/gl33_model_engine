@@ -1,5 +1,7 @@
 #include "engine.h"
 #include "gl33.h"
+#include "mesh_renderer_component.h"
+#include "physics_components.h"
 
 #include <GL/gl.h>
 #include <commdlg.h>
@@ -2473,6 +2475,63 @@ bool engine_init(
         return false;
     }
 
+    /*
+        Component scene is independent from the legacy renderer/player
+        state. MeshRenderer instances share renderer GPU resources.
+    */
+    engine.renderer.scene =
+        &engine.scene;
+
+    engine.scene.physics.ground_y =
+        engine.renderer.collider.ground_y;
+
+    GameObject* physics_cube =
+        engine.scene.CreateGameObject(
+            "PhysicsCube"
+        );
+
+    physics_cube->transform.position = {
+        4.0f,
+        6.0f,
+        0.0f
+    };
+
+    physics_cube->transform.scale = {
+        0.60f,
+        0.60f,
+        0.60f
+    };
+
+    MeshRendererComponent* cube_renderer =
+        physics_cube->AddComponent<
+            MeshRendererComponent
+        >();
+
+    cube_renderer->source =
+        MeshRendererSource::Cube;
+
+    RigidbodyComponent* cube_body =
+        physics_cube->AddComponent<
+            RigidbodyComponent
+        >();
+
+    cube_body->mass =
+        2.0f;
+
+    cube_body->use_gravity =
+        true;
+
+    BoxColliderComponent* cube_collider =
+        physics_cube->AddComponent<
+            BoxColliderComponent
+        >();
+
+    cube_collider->size = {
+        1.20f,
+        1.20f,
+        1.20f
+    };
+
     g_engine = &engine;
 
     sync_ui_from_renderer(
@@ -2691,6 +2750,14 @@ int engine_run(
             dt
         );
 
+        /*
+            Unity-style component update:
+            Component::Start/Update -> PhysicsWorld -> Transform sync.
+        */
+        engine.scene.Update(
+            dt
+        );
+
         sync_runtime_ammo_label(
             engine
         );
@@ -2719,6 +2786,10 @@ void engine_shutdown(
     script_module_unload(
         engine.script_module
     );
+
+    engine.scene.Clear();
+    engine.renderer.scene =
+        nullptr;
 
     if (engine.gl_context) {
         wglMakeCurrent(
