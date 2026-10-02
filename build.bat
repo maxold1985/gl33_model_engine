@@ -89,6 +89,7 @@ if not exist build mkdir build
 g++ ^
   src\main.cpp ^
   src\engine.cpp ^
+  src\component_editor.cpp ^
   src\gl33.cpp ^
   src\math3d.cpp ^
   src\glb_loader.cpp ^
