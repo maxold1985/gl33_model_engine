@@ -10,6 +10,15 @@ void RigidbodyComponent::Start()
     body.use_gravity =
         use_gravity;
 
+    body.restitution =
+        restitution;
+
+    body.friction =
+        friction;
+
+    body.linear_damping =
+        linear_damping;
+
     body.position = {
         transform().position.x,
         transform().position.y,
@@ -30,6 +39,15 @@ void RigidbodyComponent::Update(
     */
     body.use_gravity =
         use_gravity;
+
+    body.restitution =
+        restitution;
+
+    body.friction =
+        friction;
+
+    body.linear_damping =
+        linear_damping;
 
     if (is_kinematic) {
         body.position = {
