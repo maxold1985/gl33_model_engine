@@ -14,6 +14,15 @@ struct ScriptContext {
     float* object_y;
     float* object_z;
     float* object_yaw;
+
+    /* Full TransformComponent access. object_yaw aliases rotation.y. */
+    float* object_rotation_x;
+    float* object_rotation_y;
+    float* object_rotation_z;
+
+    float* object_scale_x;
+    float* object_scale_y;
+    float* object_scale_z;
 };
 
 using ScriptStartFn = void (*)(ScriptContext*);
