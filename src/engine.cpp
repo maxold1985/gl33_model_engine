@@ -41,6 +41,9 @@ enum : int {
 
     ID_HELP_ABOUT = 1301,
 
+    ID_SCRIPT_LOAD = 1401,
+    ID_SCRIPT_UNLOAD,
+
     ID_EDIT_MODEL_PATH = 2001,
     ID_EDIT_ANIMATION,
     ID_EDIT_SPEED,
@@ -476,6 +479,50 @@ static void open_model_dialog()
     }
 }
 
+static void open_cpp_script_dialog()
+{
+    if (!g_engine)
+        return;
+
+    char filename[MAX_PATH] = {};
+
+    OPENFILENAMEA ofn{};
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = g_engine->window;
+    ofn.lpstrFilter =
+        "C++ Scripts (*.cpp)\0*.cpp\0"
+        "All files (*.*)\0*.*\0";
+    ofn.lpstrFile = filename;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags =
+        OFN_FILEMUSTEXIST |
+        OFN_PATHMUSTEXIST;
+    ofn.lpstrDefExt = "cpp";
+
+    if (!GetOpenFileNameA(&ofn))
+        return;
+
+    if (!script_module_compile_and_load(
+            g_engine->script_module,
+            filename)) {
+
+        MessageBoxA(
+            g_engine->window,
+            "Failed to compile/load C++ script.\nCheck the console for compiler errors.",
+            "C++ Script",
+            MB_OK | MB_ICONERROR
+        );
+        return;
+    }
+
+    MessageBoxA(
+        g_engine->window,
+        "C++ script compiled and loaded.",
+        "C++ Script",
+        MB_OK | MB_ICONINFORMATION
+    );
+}
+
 static HMENU create_main_menu()
 {
     HMENU menu_bar =
@@ -491,6 +538,9 @@ static HMENU create_main_menu()
         CreatePopupMenu();
 
     HMENU help_menu =
+        CreatePopupMenu();
+
+    HMENU script_menu =
         CreatePopupMenu();
 
     AppendMenuA(
@@ -564,6 +614,20 @@ static HMENU create_main_menu()
     );
 
     AppendMenuA(
+        script_menu,
+        MF_STRING,
+        ID_SCRIPT_LOAD,
+        "&Load C++ Script..."
+    );
+
+    AppendMenuA(
+        script_menu,
+        MF_STRING,
+        ID_SCRIPT_UNLOAD,
+        "&Unload Script"
+    );
+
+    AppendMenuA(
         help_menu,
         MF_STRING,
         ID_HELP_ABOUT,
@@ -589,6 +653,13 @@ static HMENU create_main_menu()
         MF_POPUP,
         (UINT_PTR)animation_menu,
         "&Animation"
+    );
+
+    AppendMenuA(
+        menu_bar,
+        MF_POPUP,
+        (UINT_PTR)script_menu,
+        "&Script"
     );
 
     AppendMenuA(
@@ -1800,6 +1871,16 @@ static LRESULT CALLBACK wnd_proc(
 
                     return 0;
 
+                case ID_SCRIPT_LOAD:
+                    open_cpp_script_dialog();
+                    return 0;
+
+                case ID_SCRIPT_UNLOAD:
+                    script_module_unload(
+                        engine->script_module
+                    );
+                    return 0;
+
                 case ID_HELP_ABOUT:
                     MessageBoxA(
                         hwnd,
@@ -2571,6 +2652,22 @@ int engine_run(
             dt
         );
 
+        ScriptContext script_context{};
+        script_context.object_x =
+            &engine.script_object_x;
+        script_context.object_y =
+            &engine.script_object_y;
+        script_context.object_z =
+            &engine.script_object_z;
+        script_context.object_yaw =
+            &engine.script_object_yaw;
+
+        script_module_update(
+            engine.script_module,
+            script_context,
+            dt
+        );
+
         renderer_physics_step(
             engine.renderer,
             dt
@@ -2600,6 +2697,10 @@ void engine_shutdown(
 )
 {
     g_engine = nullptr;
+
+    script_module_unload(
+        engine.script_module
+    );
 
     if (engine.gl_context) {
         wglMakeCurrent(
