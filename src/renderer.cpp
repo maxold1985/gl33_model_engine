@@ -2,6 +2,8 @@
 #include "gl33.h"
 #include "math3d.h"
 #include "model_loader.h"
+#include "scene.h"
+#include "mesh_renderer_component.h"
 
 
 #include <algorithm>
@@ -3008,6 +3010,101 @@ void renderer_draw(
             renderer.cube,
             mvp
         );
+    }
+
+    /*
+        COMPONENT SCENE RENDERING
+
+        Every active GameObject with MeshRendererComponent is rendered
+        from its own TransformComponent. Geometry is shared with the
+        renderer's cube or currently loaded model, so instances do not
+        duplicate VBO/texture memory.
+    */
+    if (renderer.scene) {
+        for (const auto& object_ptr :
+             renderer.scene->objects()) {
+
+            const GameObject* object =
+                object_ptr.get();
+
+            if (!object ||
+                !object->active) {
+                continue;
+            }
+
+            const MeshRendererComponent* mesh_renderer =
+                object->GetComponent<MeshRendererComponent>();
+
+            if (!mesh_renderer ||
+                !mesh_renderer->enabled ||
+                !mesh_renderer->visible) {
+                continue;
+            }
+
+            Mat4 scene_model =
+                transform_matrix(
+                    object->transform
+                );
+
+            if (mesh_renderer->source ==
+                    MeshRendererSource::LoadedModel &&
+                !renderer.model_parts.empty()) {
+
+                if (mesh_renderer->auto_fit) {
+                    Mat4 instance_local =
+                        mat4_multiply(
+                            scale,
+                            center_matrix
+                        );
+
+                    scene_model =
+                        mat4_multiply(
+                            scene_model,
+                            instance_local
+                        );
+                }
+
+                Mat4 scene_vm =
+                    mat4_multiply(
+                        view,
+                        scene_model
+                    );
+
+                Mat4 scene_mvp =
+                    mat4_multiply(
+                        projection,
+                        scene_vm
+                    );
+
+                for (const GpuMesh& part :
+                     renderer.model_parts) {
+
+                    draw_mesh(
+                        renderer,
+                        part,
+                        scene_mvp
+                    );
+                }
+            } else {
+                Mat4 scene_vm =
+                    mat4_multiply(
+                        view,
+                        scene_model
+                    );
+
+                Mat4 scene_mvp =
+                    mat4_multiply(
+                        projection,
+                        scene_vm
+                    );
+
+                draw_mesh(
+                    renderer,
+                    renderer.cube,
+                    scene_mvp
+                );
+            }
+        }
     }
 
     /*
